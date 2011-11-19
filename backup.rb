@@ -74,10 +74,19 @@ end
 
 	IO.popen(@sshCommand + [dist_cmd], mode="w") { |dist_io|
 		IO.popen(zfscmd,"r") { |local_io|
-			#tmp = local_io.read
-			dist_io.write (local_io.read)
-			#dist_io.write tmp
-			dist_io.flush
+			while(true) do
+				tmp = local_io.read(@buffersize)
+				if (tmp == nil) then
+					print "!"
+					break
+				elsif (tmp.size < @buffersize) then
+					print "<"
+				elsif (tmp.size == @buffersize) then
+					print "="
+				end
+				dist_io.write tmp
+				dist_io.flush
+			end
 			Process.wait local_io.pid
 			if ($?.exitstatus == 0) then
 				puts "done."

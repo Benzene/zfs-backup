@@ -3,11 +3,6 @@
 require_relative 'commons.rb'
 
 # The list of things we want to restore, with old and new location
-fsrestorelist = [ { :old => 'tank_usr_home_wilya_fs1',
-		:new => 'tank/usr/home/wilya/fs11' },
-	   { :old => 'tank_usr_home_wilya_fs2',
-		:new => 'tank/usr/home/wilya/fs22' }
-	]
 
 # Get the list of files on the distant server.
 dist_ls = 'ls ' << @dist_path
@@ -25,7 +20,7 @@ IO.popen(@sshCommand + [dist_ls], mode = "r") { |dist_io|
 	}
 }
 
-fsrestorelist.each { |fs|
+@fsrestorelist.each { |fs|
 	puts "Plan for restoring " + fs[:old] + " into " + fs[:new]
 	i = 0
 	@distsnaps[fs[:old]].each { |snapshot|
@@ -54,8 +49,19 @@ fsrestorelist.each { |fs|
 		print "Restoring from " + file + '... '
 		IO.popen(["zfs","receive",fs[:new]], mode='w') { |local_io|
 			IO.popen(@sshCommand + [dist_cmd], mode='r') { |dist_io|
-				local_io.write (dist_io.read)
-				local_io.flush
+				while(true) do
+					tmp = dist_io.read(@buffersize)
+					if (tmp == nil) then
+						print "!"
+						break
+					elsif (tmp.size < @buffersize) then
+						print "<"
+					elsif (tmp.size == @buffersize) then
+						print "="
+					end
+					local_io.write tmp
+					local_io.flush
+				end
 				Process.wait local_io.pid
 				if ($?.exitstatus == 0) then
 					puts "done."
