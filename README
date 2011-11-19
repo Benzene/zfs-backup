@@ -14,5 +14,6 @@ Notes:
 
 Bugs:
 * When a transfer fails, the incremental stuff has to be fixed by hand, for now. Specifically, an incompletely saved snapshot on the server *has* to be deleted by hand, or else it will be considered as a sound basis by subsequent backups.
+* Seems fs properties are not saved when doing a simple send. This is annoying for properties that have to be set at first, like 'copies'. Might be fixed by using '-R' streams. To be investigated.
 
 
