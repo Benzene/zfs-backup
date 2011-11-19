@@ -1,0 +1,18 @@
+Backup system relying on ZFS snapshots.
+
+Usage:
+
+* Edit configuration in config.rb
+* Run backup.rb to backup
+* Run restore.rb to restore
+
+Notes:
+
+* By default, the script tries to store the diffs between snapshots (zfs send -i). It is recommended to occasionnally force a full backup with 'backup.rb --full'
+* The match between stored snapshot and position in the original filesystem has to be entered by hand in the restore.rb script. This is intentional. The goal is to be able to check the state of the backups without overwriting the local filesystem.
+* Use at your own risk ! And check the backups.
+
+Bugs:
+* When a transfer fails, the incremental stuff has to be fixed by hand, for now.
+
+
